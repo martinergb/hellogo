@@ -1,7 +1,56 @@
 package main
 
-import "fmt"
+import (
+	"bufio"
+	"fmt"
+	"net"
+	"os"
+)
+
+const (
+	connHost = "localhost"
+	connPort = "3333"
+	connType = "tcp"
+)
 
 func main() {
-    fmt.Printf("hello, world\n")
+	// Listen for incoming connections.
+	l, err := net.Listen(connType, connHost+":"+connPort)
+	if err != nil {
+		fmt.Println("Error listening:", err.Error())
+		os.Exit(1)
+	}
+	// Close the listener when the application closes.
+	defer l.Close()
+	fmt.Println("Listening on " + connHost + ":" + connPort)
+	for {
+		// Listen for an incoming connection.
+		conn, err := l.Accept()
+		if err != nil {
+			fmt.Println("Error accepting: ", err.Error())
+			os.Exit(1)
+		}
+		// Handle connections in a new goroutine.
+		go handleRequest(conn)
+	}
+}
+
+// Handles incoming requests.
+func handleRequest(conn net.Conn) {
+	defer conn.Close()
+
+	for {
+		message, err := bufio.NewReader(conn).ReadString('\n')
+
+		if err != nil {
+			fmt.Println("Error reading:", err.Error())
+			return
+		}
+
+		fmt.Println(message)
+
+		// Send a response back to person contacting us.
+		conn.Write([]byte("Message received."))
+		// Close the connection when you're done with it.
+	}
 }
