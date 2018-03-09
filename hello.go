@@ -126,6 +126,6 @@ func main() {
 
 		fmt.Println(*newBook)
 
-		time.Sleep(time.Second)
+		time.Sleep(time.Millisecond * 5)
 	}
 }
