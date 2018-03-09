@@ -17,6 +17,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"time"
 
 	proto "github.com/golang/protobuf/proto"
 )
@@ -95,32 +96,36 @@ func init() {
 }
 
 func main() {
-	oldBook := Person{
-		Id:    1234,
-		Name:  "John Doe",
-		Email: "jdoe@example.com",
-		Phones: []*Person_PhoneNumber{
-			{Number: "555-4321", Type: Person_HOME},
-		},
+	for {
+		oldBook := Person{
+			Id:    1234,
+			Name:  "John Doe",
+			Email: "jdoe@example.com",
+			Phones: []*Person_PhoneNumber{
+				{Number: "555-4321", Type: Person_HOME},
+			},
+		}
+
+		fmt.Println(oldBook)
+		out, err := proto.Marshal(&oldBook)
+
+		if err != nil {
+			log.Fatalln("Failed to encode address book:", err)
+		} else {
+			fmt.Println(out)
+		}
+
+		//
+		newBook := &Person{}
+
+		err = proto.Unmarshal(out, newBook)
+
+		if err != nil {
+			log.Fatalln("Failed to parse address book:", err)
+		}
+
+		fmt.Println(*newBook)
+
+		time.Sleep(time.Second)
 	}
-
-	fmt.Println(oldBook)
-	out, err := proto.Marshal(&oldBook)
-
-	if err != nil {
-		log.Fatalln("Failed to encode address book:", err)
-	} else {
-		fmt.Println(out)
-	}
-
-	//
-	newBook := &Person{}
-
-	err = proto.Unmarshal(out, newBook)
-
-	if err != nil {
-		log.Fatalln("Failed to parse address book:", err)
-	}
-
-	fmt.Println(*newBook)
 }
