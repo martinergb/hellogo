@@ -2,16 +2,27 @@ package main
 
 import (
 	"fmt"
-	"runtime"
+	"os"
 
-	"github.com/rickb777/date"
+	"github.com/godbus/dbus"
 )
 
 func main() {
-	defer func() {
-		fmt.Printf("#goroutines: %d\n", runtime.NumGoroutine())
-	}()
+	conn, err := dbus.SessionBus()
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "Failed to connect to session bus:", err)
+		os.Exit(1)
+	}
 
-	d := date.Max()
-	fmt.Println(d)
+	var s []string
+	err = conn.BusObject().Call("org.freedesktop.DBus.ListNames", 0).Store(&s)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "Failed to get list of owned names:", err)
+		os.Exit(1)
+	}
+
+	fmt.Println("Currently owned names on the session bus:")
+	for _, v := range s {
+		fmt.Println(v)
+	}
 }
