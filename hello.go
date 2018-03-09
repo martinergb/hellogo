@@ -16,6 +16,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 
 	proto "github.com/golang/protobuf/proto"
 )
@@ -104,4 +105,22 @@ func main() {
 	}
 
 	fmt.Println(oldBook)
+	out, err := proto.Marshal(&oldBook)
+
+	if err != nil {
+		log.Fatalln("Failed to encode address book:", err)
+	} else {
+		fmt.Println(out)
+	}
+
+	//
+	newBook := &Person{}
+
+	err = proto.Unmarshal(out, newBook)
+
+	if err != nil {
+		log.Fatalln("Failed to parse address book:", err)
+	}
+
+	fmt.Println(*newBook)
 }
